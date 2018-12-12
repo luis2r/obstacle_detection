@@ -1,0 +1,66 @@
+<launch>
+
+  <node pkg="nodelet" type="nodelet" name="pcl_manager" args="manager" output="screen" />
+  <!-- Run a passthrough filter to clean NaNs -->
+  <node pkg="nodelet" type="nodelet" name="passthrough" args="load pcl/PassThrough pcl_manager" output="screen">
+    <!--         <remap from="~input" to="/stereo/narrow/points2" /> -->
+    <remap from="~input" to="velodyne_points" />
+    <remap from="~output" to="/passthrough" />
+    <rosparam>
+      filter_field_name: z
+      filter_limit_min: -6.0
+      filter_limit_max: 1.50
+      <!-- filter_field_name: z
+      filter_field_name: y
+      filter_limit_min: -5.0
+      filter_limit_max: 5.0 //velodyne -->
+      keep_organized: True
+
+      filter_limit_negative: False
+    </rosparam>
+  </node>
+
+
+
+  <node pkg="nodelet" type="nodelet" name="pcl_manager1" args="manager" output="screen" />
+  <!-- Run a passthrough filter to clean NaNs -->
+  <node pkg="nodelet" type="nodelet" name="passthrough1" args="load pcl/PassThrough pcl_manager1" output="screen">
+    <remap from="~input" to="/passthrough" />
+    <remap from="~output" to="/passthrough1" />
+    <rosparam>
+      filter_field_name: y
+        <!--      filter_field_name: x //velodyne -->
+      filter_limit_min: -14.0
+      <!-- filter_limit_max: 4.0-->
+      filter_limit_max: 14.0
+      filter_limit_negative: False
+      keep_organized: True
+    </rosparam>
+  </node>
+
+  <node pkg="nodelet" type="nodelet" name="pcl_manager2" args="manager" output="screen" />
+  <!-- Run a passthrough filter to clean NaNs -->
+  <node pkg="nodelet" type="nodelet" name="passthrough2" args="load pcl/PassThrough pcl_manager2" output="screen">
+    <remap from="~input" to="/passthrough1" />
+    <remap from="~output" to="/passthrough2" />
+    <rosparam>
+      filter_field_name: x
+        <!-- filter_field_name: z //velodyne -->
+      <!-- filter_limit_min: 4.0//despues de 9.bab-->
+      filter_limit_min: 6.5 
+      filter_limit_max: 24.0
+      filter_limit_negative: False
+      keep_organized: True
+    </rosparam>
+  </node>
+
+  <node name="vel_square_detect" pkg="radar_stereo_fusion" type="vel_square_detect" output="screen" />
+
+  <node name="square_calib_vel" pkg="bounding_box" type="square_calib_vel" output="screen" />
+
+  <include file="$(find split_rectify_stereo)/launch/SplitRectify.launch" />
+
+
+
+
+</launch>
