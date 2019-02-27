@@ -43,7 +43,7 @@ HeightMap::HeightMap(ros::NodeHandle node, ros::NodeHandle priv_nh)
   priv_nh.param("cell_size", m_per_cell_, 0.1);
   priv_nh.param("full_clouds", full_clouds_, false);
   priv_nh.param("grid_dimensions", grid_dim_, 620);
-  priv_nh.param("height_threshold", height_diff_threshold_, 0.25);
+  priv_nh.param("height_threshold", height_diff_threshold_, 0.10);
 
   
   ROS_INFO_STREAM("height map parameters: "
@@ -57,8 +57,8 @@ HeightMap::HeightMap(ros::NodeHandle node, ros::NodeHandle priv_nh)
   clear_publisher_ = node.advertise<VPointCloud>("velodyne_clear",1);  
 
   // subscribe to Velodyne data points
-  //velodyne_scan_ = node.subscribe("passthrough2", 10,
-  velodyne_scan_ = node.subscribe("velodyne_points", 10,
+  velodyne_scan_ = node.subscribe("kitti_player/hdl64e", 10,
+  //velodyne_scan_ = node.subscribe("velodyne_points", 10,
                                   &HeightMap::processData, this,
                                   ros::TransportHints().tcpNoDelay(true));
 }
@@ -193,9 +193,11 @@ void HeightMap::constructGridClouds(const VPointCloud::ConstPtr &scan,
 /** point cloud input callback */
 void HeightMap::processData(const VPointCloud::ConstPtr &scan)
 {
-  if ((obstacle_publisher_.getNumSubscribers() == 0)
-      && (clear_publisher_.getNumSubscribers() == 0))
+  if ((obstacle_publisher_.getNumSubscribers() == 0)  && (clear_publisher_.getNumSubscribers() == 0))
+  {
+    ROS_INFO_STREAM("0 NumSubscribers");
     return;
+  }
   
   // pass along original time stamp and frame ID
   obstacle_cloud_.header.stamp = scan->header.stamp;
@@ -217,6 +219,7 @@ void HeightMap::processData(const VPointCloud::ConstPtr &scan)
   size_t obs_count=0;
   size_t empty_count=0;
   // either return full point cloud or a discretized version
+  ROS_INFO_STREAM("Build clouds");
   if (full_clouds_)
     constructFullClouds(scan,npoints,obs_count, empty_count);
   else

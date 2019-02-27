@@ -40,16 +40,11 @@ namespace velodyne_height_map {
 HeightMap::HeightMap(ros::NodeHandle node, ros::NodeHandle priv_nh)
 {
   // get parameters using private node handle
-  //priv_nh.param("cell_size", m_per_cell_, 0.5);
-  //priv_nh.param("full_clouds", full_clouds_, false);
-  //priv_nh.param("grid_dimensions", grid_dim_, 320);
-  //priv_nh.param("height_threshold", height_diff_threshold_, 0.25);
+  priv_nh.param("cell_size", m_per_cell_, 0.1);
+  priv_nh.param("full_clouds", full_clouds_, false);
+  priv_nh.param("grid_dimensions", grid_dim_, 620);
+  priv_nh.param("height_threshold", height_diff_threshold_, 0.25);
 
-  // get parameters using private node handle
-  priv_nh.param("cell_size", m_per_cell_, 0.5);
-  priv_nh.param("full_clouds", full_clouds_, true);
-  priv_nh.param("grid_dimensions", grid_dim_, 320);
-  priv_nh.param("height_threshold", height_diff_threshold_, 0.5);
   
   ROS_INFO_STREAM("height map parameters: "
                   << grid_dim_ << "x" << grid_dim_ << ", "
@@ -62,7 +57,8 @@ HeightMap::HeightMap(ros::NodeHandle node, ros::NodeHandle priv_nh)
   clear_publisher_ = node.advertise<VPointCloud>("velodyne_clear",1);  
 
   // subscribe to Velodyne data points
-  velodyne_scan_ = node.subscribe("velodyne_points", 10,
+  velodyne_scan_ = node.subscribe("/kitti_player/hdl64e_from_depth_left", 10,
+  //velodyne_scan_ = node.subscribe("velodyne_points", 10,
                                   &HeightMap::processData, this,
                                   ros::TransportHints().tcpNoDelay(true));
 }
@@ -114,6 +110,8 @@ void HeightMap::constructFullClouds(const VPointCloud::ConstPtr &scan,
       }
     }
   }
+  //std::cout << "if obstacles: " <<  obs_count << " \n";
+
 }
 
 void HeightMap::constructGridClouds(const VPointCloud::ConstPtr &scan,
@@ -178,6 +176,7 @@ void HeightMap::constructGridClouds(const VPointCloud::ConstPtr &scan,
         obstacle_cloud_.points[obs_count].z = height_diff_threshold_;
         //obstacle_cloud_.channels[0].values[obs_count] = (float) 255.0;
         obs_count++;
+        //std::cout << "if obstacles: " <<  obs_count << " \n";
       }
       if (num_clear[x][y]>0) {
         clear_cloud_.points[empty_count].x = -grid_offset + (x*m_per_cell_+m_per_cell_/2.0);
@@ -188,6 +187,7 @@ void HeightMap::constructGridClouds(const VPointCloud::ConstPtr &scan,
       }
     }
   }
+  //std::cout << "if obstacles: " <<  obs_count << " \n";
 }
 
 /** point cloud input callback */

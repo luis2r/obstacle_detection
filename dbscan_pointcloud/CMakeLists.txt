@@ -1,26 +1,24 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(radar_stereo_fusion)
+project(dbscan_pointcloud)
+
+## Compile as C++11, supported in ROS Kinetic and newer
+# add_compile_options(-std=c++11)
 
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
-  pcl_conversions
+  nodelet
   pcl_ros
+  ros_numpy
   roscpp
-  sensor_msgs
+  roscpp
   rospy
+  sensor_msgs
   std_msgs
-  message_generation
-  velodyne_driver
-  velodyne_msgs
-  cari_msgs_perception
-
-
-
+  tf2
 )
-#find_package(OpenCV)
-find_package(OpenCV)
+
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
 
@@ -40,10 +38,10 @@ find_package(OpenCV)
 ##   your messages/services/actions (e.g. std_msgs, actionlib_msgs, ...).
 ## * In the file package.xml:
 ##   * add a build_depend tag for "message_generation"
-##   * add a build_depend and a run_depend tag for each package in MSG_DEP_SET
+##   * add a build_depend and a exec_depend tag for each package in MSG_DEP_SET
 ##   * If MSG_DEP_SET isn't empty the following dependency has been pulled in
 ##     but can be declared for certainty nonetheless:
-##     * add a run_depend tag for "message_runtime"
+##     * add a exec_depend tag for "message_runtime"
 ## * In this file (CMakeLists.txt):
 ##   * add "message_generation" and every package in MSG_DEP_SET to
 ##     find_package(catkin REQUIRED COMPONENTS ...)
@@ -59,12 +57,6 @@ find_package(OpenCV)
 #   FILES
 #   Message1.msg
 #   Message2.msg
-# )
-
-# add_message_files(
-#   FILES
-#   Num.msg
-#   NumArray.msg
 # )
 
 ## Generate services in the 'srv' folder
@@ -84,11 +76,7 @@ find_package(OpenCV)
 ## Generate added messages and services with any dependencies listed here
 # generate_messages(
 #   DEPENDENCIES
-#   sensor_msgs
-# )
-# generate_messages(
-#   DEPENDENCIES
-#   std_msgs
+#   sensor_msgs#   std_msgs
 # )
 
 ################################################
@@ -98,7 +86,7 @@ find_package(OpenCV)
 ## To declare and build dynamic reconfigure parameters within this
 ## package, follow these steps:
 ## * In the file package.xml:
-##   * add a build_depend and a run_depend tag for "dynamic_reconfigure"
+##   * add a build_depend and a exec_depend tag for "dynamic_reconfigure"
 ## * In this file (CMakeLists.txt):
 ##   * add "dynamic_reconfigure" to
 ##     find_package(catkin REQUIRED COMPONENTS ...)
@@ -116,17 +104,16 @@ find_package(OpenCV)
 ###################################
 ## The catkin_package macro generates cmake config files for your package
 ## Declare things to be passed to dependent projects
-## INCLUDE_DIRS: uncomment this if you package contains header files
+## INCLUDE_DIRS: uncomment this if your package contains header files
 ## LIBRARIES: libraries you create in this project that dependent projects also need
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
-  INCLUDE_DIRS include
-#  LIBRARIES radar_stereo_fusion
-  CATKIN_DEPENDS pcl_conversions pcl_ros roscpp sensor_msgs message_runtime
-  DEPENDS system_lib
+#  INCLUDE_DIRS include
+#  LIBRARIES dbscan_pointcloud
+#  CATKIN_DEPENDS nodelet pcl_ros ros_numpy roscpp roscpp rospy sensor_msgs std_msgs tf2
+#  DEPENDS system_lib
 )
-
 
 ###########
 ## Build ##
@@ -134,70 +121,40 @@ catkin_package(
 
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
-
 include_directories(
-  include
-  ${catkin_INCLUDE_DIRS} ${OpenCV_INCLUDE_DIRS}
+# include
+  ${catkin_INCLUDE_DIRS}
 )
 
 ## Declare a C++ library
-# add_library(radar_stereo_fusion
-#   src/${PROJECT_NAME}/src/radar_stereo_fusion.cpp
+# add_library(${PROJECT_NAME}
+#   src/${PROJECT_NAME}/dbscan_pointcloud.cpp
 # )
 
 ## Add cmake target dependencies of the library
 ## as an example, code may need to be generated before libraries
 ## either from message generation or dynamic reconfigure
-# add_dependencies(radar_stereo_fusion ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+# add_dependencies(${PROJECT_NAME} ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Declare a C++ executable
-# add_executable(radar_stereo_fusion_node src/radar_stereo_fusion_node.cpp)
-add_executable(radar_stereo_fusion_vel_cut_color src/radar_stereo_fusion_vel_cut_color.cpp)
-add_executable(radar_stereo_fusion_vel_don_cut src/radar_stereo_fusion_vel_don_cut.cpp)
-add_executable(radar_stereo_fusion_1 src/radar_stereo_fusion_1.cpp)
-add_executable(radar_stereo_fusion_stereo_don src/radar_stereo_fusion_stereo_don.cpp)
-add_executable(radar_stereo_fusion_don src/radar_stereo_fusion_don.cpp)
-add_executable(radar_stereo_fusion_euclidean_stereo src/radar_stereo_fusion_euclidean_stereo.cpp)
-add_executable(radar_stereo_fusion_euclidean_vel src/radar_stereo_fusion_euclidean_vel.cpp)
-add_executable(euclidean_cluster src/euclidean_cluster.cpp)
-add_executable(vel_square_detect_old src/vel_square_detect.cpp)
+## With catkin_make all packages are built within a single CMake context
+## The recommended prefix ensures that target names across packages don't collide
+# add_executable(${PROJECT_NAME}_node src/dbscan_pointcloud_node.cpp)
+
+## Rename C++ executable without prefix
+## The above recommended prefix causes long target names, the following renames the
+## target back to the shorter version for ease of user use
+## e.g. "rosrun someones_pkg node" instead of "rosrun someones_pkg someones_pkg_node"
+# set_target_properties(${PROJECT_NAME}_node PROPERTIES OUTPUT_NAME node PREFIX "")
 
 ## Add cmake target dependencies of the executable
 ## same as for the library above
-# add_dependencies(radar_stereo_fusion_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+# add_dependencies(${PROJECT_NAME}_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
- target_link_libraries(radar_stereo_fusion_vel_cut_color ${catkin_LIBRARIES} )
-   target_link_libraries(radar_stereo_fusion_vel_cut_color ${OpenCV_LIBRARIES})
-
-
- target_link_libraries(radar_stereo_fusion_1 ${catkin_LIBRARIES} )
-   target_link_libraries(radar_stereo_fusion_1 ${OpenCV_LIBRARIES})
-
-
- target_link_libraries(radar_stereo_fusion_don ${catkin_LIBRARIES} )
-   target_link_libraries(radar_stereo_fusion_don ${OpenCV_LIBRARIES})
-
-
- target_link_libraries(radar_stereo_fusion_stereo_don ${catkin_LIBRARIES} )
-   target_link_libraries(radar_stereo_fusion_stereo_don ${OpenCV_LIBRARIES})
-
-
- target_link_libraries(radar_stereo_fusion_vel_don_cut ${catkin_LIBRARIES} )
-   target_link_libraries(radar_stereo_fusion_vel_don_cut ${OpenCV_LIBRARIES})
-
- target_link_libraries(radar_stereo_fusion_euclidean_stereo ${catkin_LIBRARIES} )
-   target_link_libraries(radar_stereo_fusion_euclidean_stereo ${OpenCV_LIBRARIES})
-
- target_link_libraries(radar_stereo_fusion_euclidean_vel   ${catkin_LIBRARIES} )
-   target_link_libraries(radar_stereo_fusion_euclidean_vel ${OpenCV_LIBRARIES})
-
- target_link_libraries(euclidean_cluster   ${catkin_LIBRARIES} )
-   target_link_libraries(euclidean_cluster ${OpenCV_LIBRARIES})
-
- target_link_libraries(vel_square_detect_old ${catkin_LIBRARIES} )
-   target_link_libraries(vel_square_detect_old ${OpenCV_LIBRARIES})
-
+# target_link_libraries(${PROJECT_NAME}_node
+#   ${catkin_LIBRARIES}
+# )
 
 #############
 ## Install ##
@@ -214,7 +171,7 @@ add_executable(vel_square_detect_old src/vel_square_detect.cpp)
 # )
 
 ## Mark executables and/or libraries for installation
-# install(TARGETS radar_stereo_fusion radar_stereo_fusion_node
+# install(TARGETS ${PROJECT_NAME} ${PROJECT_NAME}_node
 #   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
 #   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
 #   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
@@ -239,7 +196,7 @@ add_executable(vel_square_detect_old src/vel_square_detect.cpp)
 #############
 
 ## Add gtest based cpp test target and link libraries
-# catkin_add_gtest(${PROJECT_NAME}-test test/test_radar_stereo_fusion.cpp)
+# catkin_add_gtest(${PROJECT_NAME}-test test/test_dbscan_pointcloud.cpp)
 # if(TARGET ${PROJECT_NAME}-test)
 #   target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME})
 # endif()
