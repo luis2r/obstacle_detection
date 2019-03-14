@@ -8,6 +8,8 @@ set(${PROJECT_NAME}_CATKIN_DEPS
     sensor_msgs
     tf)
 
+find_package(OpenCV)
+
 find_package(catkin REQUIRED COMPONENTS
              ${${PROJECT_NAME}_CATKIN_DEPS}
              angles
@@ -19,24 +21,37 @@ find_package(PCL REQUIRED QUIET COMPONENTS common)
 include_directories(include
                     ${Boost_INCLUDE_DIR}
                     ${catkin_INCLUDE_DIRS}
-                    ${PCL_INCLUDE_DIR})
+                    ${PCL_INCLUDE_DIR}
+ 		    ${OpenCV_INCLUDE_DIRS}	)
 
 catkin_package(CATKIN_DEPENDS ${${PROJECT_NAME}_CATKIN_DEPS})
 
 add_executable(heightmap_node src/heightmap_node.cpp src/heightmap.cpp)
+add_executable(heightmap_node_full src/heightmap_node.cpp src/heightmap_full.cpp)
+
 target_link_libraries(heightmap_node
                       ${catkin_LIBRARIES}
                       ${Boost_LIBRARIES}
-                      ${PCL_LIBRARIES})
+                      ${PCL_LIBRARIES}
+ 		      ${OpenCV_LIBRARIES})
+
+target_link_libraries(heightmap_node_full
+                      ${catkin_LIBRARIES}
+                      ${Boost_LIBRARIES}
+                      ${PCL_LIBRARIES}
+ 		      ${OpenCV_LIBRARIES})
 
 add_library(heightmap_nodelet src/heightmap_nodelet.cpp src/heightmap.cpp)
 target_link_libraries(heightmap_nodelet
                       ${catkin_LIBRARIES}
                       ${Boost_LIBRARIES}
-                      ${PCL_LIBRARIES})
+                      ${PCL_LIBRARIES}
+			${OpenCV_LIBRARIES})
 
 # install the files needed to run this package
 install(TARGETS heightmap_node
+        RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
+install(TARGETS heightmap_node_full
         RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
 install(TARGETS heightmap_nodelet
         RUNTIME DESTINATION ${CATKIN_GLOBAL_BIN_DESTINATION}

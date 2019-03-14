@@ -1,0 +1,10 @@
+<library path="lib/libobstacles_rviz_plugin">
+
+  <class name="obstacles_rviz_plugin/ObstacleArray" type="obstacles_rviz_plugin::ObstacleArrayDisplay" base_class_type="rviz::Display">
+    <description>
+      Displays animated mesh obstacles
+    </description>
+    <message_type>msgs_perception::ObstacleArray</message_type>
+  </class>
+
+</library>
