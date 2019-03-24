@@ -117,13 +117,14 @@ void HeightMap::constructFullClouds(const VPointCloud::ConstPtr &scan,
         obstacle_cloud_.points[obs_count].z = scan->points[i].z;
         //obstacle_cloud_.channels[0].values[obs_count] = (float) scan->points[i].intensity;
         obs_count++;
-      } else {
-        clear_cloud_.points[empty_count].x = scan->points[i].x;
-        clear_cloud_.points[empty_count].y = scan->points[i].y;
-        clear_cloud_.points[empty_count].z = scan->points[i].z;
-        //clear_cloud_.channels[0].values[empty_count] = (float) scan->points[i].intensity;
-        empty_count++;
-      }
+      } 
+       //  else {
+      //   clear_cloud_.points[empty_count].x = scan->points[i].x;
+      //   clear_cloud_.points[empty_count].y = scan->points[i].y;
+      //   clear_cloud_.points[empty_count].z = scan->points[i].z;
+      //   //clear_cloud_.channels[0].values[empty_count] = (float) scan->points[i].intensity;
+      //   empty_count++;
+      // }
     }
   }
   //std::cout << "if obstacles: " <<  obs_count << " \n";

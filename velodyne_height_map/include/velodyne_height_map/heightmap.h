@@ -41,6 +41,8 @@ public:
 private:
   void constructFullClouds(const VPointCloud::ConstPtr &scan, unsigned npoints,
                            size_t &obs_count, size_t &empty_count);
+  void constructFullClouds(const VPointCloud::ConstPtr &scan, unsigned npoints,
+                           size_t &obs_count);
   void constructGridClouds(const VPointCloud::ConstPtr &scan, unsigned npoints,
                            size_t &obs_count, size_t &empty_count);
 
